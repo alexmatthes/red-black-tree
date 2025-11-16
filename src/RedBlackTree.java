@@ -8,8 +8,8 @@ import java.util.NoSuchElementException;
  */
 public class RedBlackTree {
   private enum Color {
-        RED,
-        BLACK
+    RED,
+    BLACK
   }
 
   /**
@@ -25,7 +25,7 @@ public class RedBlackTree {
 
     /**
      * Constructs a new node with the specified data.
-     * Color and references are initializes separately.
+     * Color and references are initialized separately.
      *
      * @param data The integer value data to store in the node.
      */
@@ -113,6 +113,14 @@ public class RedBlackTree {
     deleteNode(nodeToDelete);
   }
 
+  /**
+   * Finds and returns the node containing the specified key.
+   *
+   * @param node The root of the subtree to search
+   * @param key The key to search for
+   *
+   * @return The node containing the key, or nullNode if not found
+   */
   private Node findNode(Node node, int key) {
     if (node == nullNode) {
       return nullNode;
@@ -129,110 +137,123 @@ public class RedBlackTree {
     }
   }
 
-  private void deleteNode(Node nodeToBeDeleted) {
-    Node nodeToBeSpliced = nodeToBeDeleted;
-    Node nodeToBeDeletedChild;
-    Color originalColor = nodeToBeSpliced.color;
+  /**
+   * Deletes the given node from the Red-Black Tree.
+   *
+   * @param nodeToDelete The node in the tree to be deleted.
+   *
+   */
+  private void deleteNode(Node nodeToDelete) {
+    Node successor = nodeToDelete;
+    Node nodeChild;
+    Color originalColor = successor.color;
 
-    if (nodeToBeDeleted.leftChild == nullNode) {
-      nodeToBeDeletedChild = nodeToBeDeleted.rightChild;
-      transplant(nodeToBeDeleted, nodeToBeDeleted.rightChild);
-    } else if (nodeToBeDeleted.rightChild == nullNode) {
-      nodeToBeDeletedChild = nodeToBeDeleted.leftChild;
-      transplant(nodeToBeDeleted, nodeToBeDeleted.leftChild);
+    if (nodeToDelete.leftChild == nullNode) {
+      nodeChild = nodeToDelete.rightChild;
+      transplant(nodeToDelete, nodeToDelete.rightChild);
+    } else if (nodeToDelete.rightChild == nullNode) {
+      nodeChild = nodeToDelete.leftChild;
+      transplant(nodeToDelete, nodeToDelete.leftChild);
     } else {
-      nodeToBeSpliced = minimum(nodeToBeDeleted.rightChild);
-      originalColor = nodeToBeSpliced.color;
-      nodeToBeDeletedChild = nodeToBeSpliced.rightChild;
+      successor = minimum(nodeToDelete.rightChild);
+      originalColor = successor.color;
+      nodeChild = successor.rightChild;
 
-      if (nodeToBeSpliced.parent == nodeToBeDeleted) {
-        nodeToBeDeletedChild.parent = nodeToBeSpliced;
+      if (successor.parent == nodeToDelete) {
+        nodeChild.parent = successor;
       } else {
-        transplant(nodeToBeSpliced, nodeToBeSpliced.rightChild);
-        nodeToBeSpliced.rightChild = nodeToBeDeleted.rightChild;
-        nodeToBeSpliced.rightChild.parent = nodeToBeSpliced;
+        transplant(successor, successor.rightChild);
+        successor.rightChild = nodeToDelete.rightChild;
+        successor.rightChild.parent = successor;
       }
 
-      transplant(nodeToBeDeleted, nodeToBeSpliced);
-      nodeToBeSpliced.leftChild = nodeToBeDeleted.leftChild;
-      nodeToBeSpliced.leftChild.parent = nodeToBeSpliced;
-      nodeToBeSpliced.color = nodeToBeDeleted.color;
+      transplant(nodeToDelete, successor);
+      successor.leftChild = nodeToDelete.leftChild;
+      successor.leftChild.parent = successor;
+      successor.color = nodeToDelete.color;
     }
 
     if (originalColor == Color.BLACK) {
-      deleteFixUp(nodeToBeDeletedChild);
+      deleteFixUp(nodeChild);
     }
   }
 
+  /**
+   * Fixes the tree after deleting a node, including
+   * performing rotations and re-coloring nodes to preserve
+   * the Red-Black properties.
+   *
+   * @param nodeToBeFixed The node to fix.
+   */
   private void deleteFixUp(Node nodeToBeFixed) {
     while (nodeToBeFixed != root && nodeToBeFixed.color == Color.BLACK) {
       if (nodeToBeFixed == nodeToBeFixed.parent.leftChild) {
-        Node nodeSibling = nodeToBeFixed.parent.rightChild;
+        Node sibling = nodeToBeFixed.parent.rightChild;
 
-        if (nodeSibling.color == Color.RED) {
-          nodeSibling.color = Color.BLACK;
+        if (sibling.color == Color.RED) {
+          sibling.color = Color.BLACK;
           nodeToBeFixed.parent.color = Color.RED;
 
           leftRotate(nodeToBeFixed.parent);
 
-          nodeSibling = nodeToBeFixed.parent.rightChild;
+          sibling = nodeToBeFixed.parent.rightChild;
         }
 
-        if (nodeSibling.leftChild.color == Color.BLACK
-                && nodeSibling.rightChild.color == Color.BLACK) {
-          nodeSibling.color = Color.RED;
+        if (sibling.leftChild.color == Color.BLACK
+                && sibling.rightChild.color == Color.BLACK) {
+          sibling.color = Color.RED;
 
           nodeToBeFixed = nodeToBeFixed.parent;
         } else {
-          if (nodeSibling.rightChild.color == Color.BLACK) {
-            nodeSibling.leftChild.color = Color.BLACK;
-            nodeSibling.color = Color.RED;
+          if (sibling.rightChild.color == Color.BLACK) {
+            sibling.leftChild.color = Color.BLACK;
+            sibling.color = Color.RED;
 
-            rightRotate(nodeSibling);
+            rightRotate(sibling);
 
-            nodeSibling = nodeToBeFixed.parent.rightChild;
+            sibling = nodeToBeFixed.parent.rightChild;
           }
 
-          nodeSibling.color = nodeToBeFixed.parent.color;
+          sibling.color = nodeToBeFixed.parent.color;
 
           nodeToBeFixed.parent.color = Color.BLACK;
-          nodeSibling.rightChild.color = Color.BLACK;
+          sibling.rightChild.color = Color.BLACK;
 
           leftRotate(nodeToBeFixed.parent);
 
           nodeToBeFixed = root;
         }
       } else {
-        Node nodeSibling = nodeToBeFixed.parent.leftChild;
+        Node sibling = nodeToBeFixed.parent.leftChild;
 
-        if (nodeSibling.color == Color.RED) {
+        if (sibling.color == Color.RED) {
 
-          nodeSibling.color = Color.BLACK;
+          sibling.color = Color.BLACK;
           nodeToBeFixed.parent.color = Color.RED;
 
           rightRotate(nodeToBeFixed.parent);
 
-          nodeSibling = nodeToBeFixed.parent.leftChild;
+          sibling = nodeToBeFixed.parent.leftChild;
         }
 
-        if (nodeSibling.rightChild.color == Color.BLACK
-                && nodeSibling.leftChild.color == Color.BLACK) {
-          nodeSibling.color = Color.RED;
+        if (sibling.rightChild.color == Color.BLACK
+                && sibling.leftChild.color == Color.BLACK) {
+          sibling.color = Color.RED;
 
           nodeToBeFixed = nodeToBeFixed.parent;
         } else {
-          if (nodeSibling.leftChild.color == Color.BLACK) {
-            nodeSibling.rightChild.color = Color.BLACK;
-            nodeSibling.color = Color.RED;
+          if (sibling.leftChild.color == Color.BLACK) {
+            sibling.rightChild.color = Color.BLACK;
+            sibling.color = Color.RED;
 
-            leftRotate(nodeSibling);
+            leftRotate(sibling);
 
-            nodeSibling = nodeToBeFixed.parent.leftChild;
+            sibling = nodeToBeFixed.parent.leftChild;
           }
-          nodeSibling.color = nodeToBeFixed.parent.color;
+          sibling.color = nodeToBeFixed.parent.color;
 
           nodeToBeFixed.parent.color = Color.BLACK;
-          nodeSibling.leftChild.color = Color.BLACK;
+          sibling.leftChild.color = Color.BLACK;
 
           rightRotate(nodeToBeFixed.parent);
           nodeToBeFixed = root;
@@ -244,6 +265,12 @@ public class RedBlackTree {
     nodeToBeFixed.color = Color.BLACK;
   }
 
+  /**
+   * Helper method to transplant two nodes within the Red-Black tree.
+   *
+   * @param oldRoot The old node in the tree.
+   * @param newRoot The new node to be added to the tree.
+   */
   private void transplant(Node oldRoot, Node newRoot) {
     if (oldRoot.parent == nullNode) {
       this.root = newRoot;
@@ -255,6 +282,11 @@ public class RedBlackTree {
     newRoot.parent = oldRoot.parent;
   }
 
+  /**
+   * Helper method to get the minimum node in the tree.
+   *
+   * @param root The root of the tree to find the minimum value of.
+   */
   private Node minimum(Node root) {
     Node current = root;
 
@@ -266,7 +298,7 @@ public class RedBlackTree {
   }
 
   /*
-  * ---------------------Search Methods------------------------
+   ---------------------Search Methods------------------------
   */
 
   /**
@@ -370,11 +402,11 @@ public class RedBlackTree {
     while (currentNode.parent.color == Color.RED) {
 
       if (currentNode.parent == currentNode.parent.parent.leftChild) {
-        Node uncleRightChild = currentNode.parent.parent.rightChild;
+        Node uncle = currentNode.parent.parent.rightChild;
 
-        if (uncleRightChild.color == Color.RED) {
+        if (uncle.color == Color.RED) {
           currentNode.parent.color = Color.BLACK;
-          uncleRightChild.color = Color.BLACK;
+          uncle.color = Color.BLACK;
           currentNode.parent.parent.color = Color.RED;
           currentNode = currentNode.parent.parent;
         } else {
@@ -388,11 +420,11 @@ public class RedBlackTree {
           rightRotate(currentNode.parent.parent);
         }
       } else {
-        Node uncleLeftChild = currentNode.parent.parent.leftChild;
+        Node uncle = currentNode.parent.parent.leftChild;
 
-        if (uncleLeftChild.color == Color.RED) {
+        if (uncle.color == Color.RED) {
           currentNode.parent.color = Color.BLACK;
-          uncleLeftChild.color = Color.BLACK;
+          uncle.color = Color.BLACK;
           currentNode.parent.parent.color = Color.RED;
           currentNode = currentNode.parent.parent;
         } else {
@@ -412,7 +444,7 @@ public class RedBlackTree {
   }
 
   /*
-   * ---------------------Test Methods------------------------
+   ---------------------Test Methods------------------------
    */
 
   /**
@@ -435,7 +467,7 @@ public class RedBlackTree {
    * @return Whether the Red-Black tree is valid.
    */
   public boolean isRedBlackTree() {
-    if (root.color != Color.RED) {
+    if (root.color != Color.BLACK) {
       return false;
     }
 
@@ -446,6 +478,11 @@ public class RedBlackTree {
     return (validate(root) != -1);
   }
 
+  /**
+   * Checks the tree to see if it is a valid binary search tree.
+   *
+   * @return Whether the tree is a valid binary search tree.
+   */
   private boolean isBinarySearchTree(Node node, int min, int max) {
     if (node == nullNode) {
       return true;
