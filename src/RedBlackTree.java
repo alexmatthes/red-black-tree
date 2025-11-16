@@ -1,301 +1,495 @@
+import java.util.NoSuchElementException;
+
 /**
  * Implements a Red-Black Tree data structure.
  * This class ensures O(log n) time complexity for insertion, deletion,
  * and search operations by maintaining a balanced binary search tree.
+ * Author: Alex Matthes
  */
 public class RedBlackTree {
-    private enum Color {
+  private enum Color {
         RED,
         BLACK
-    }
+  }
 
-    //Node Class
-    private static class Node {
-        int data;
-        Color color;
-        Node parent;
-        Node leftChild;
-        Node rightChild;
-
-        //Constructor
-        Node(int data) {
-            this.data = data;
-        }
-    }
-
-    private Node root;
-    private final Node NIL;
+  /**
+   *  Represents a node in the Red-Black Tree.
+   *  Each node contains data, color, and references to parent and children.
+   */
+  private static class Node {
+    int data;
+    Color color;
+    Node parent;
+    Node leftChild;
+    Node rightChild;
 
     /**
-     * Constructs an empty Red-Black Tree.
-     * Initializes the sentinel NIL node and sets the root to NIL.
-     */
-    public RedBlackTree() {
-        NIL = new Node(0);
-        NIL.color = Color.BLACK;
-
-        NIL.parent = NIL;
-        NIL.leftChild = NIL;
-        NIL.rightChild = NIL;
-
-        this.root = NIL;
-    }
-
-    /**
-     * Inserts a new item into the Red-Black Tree.
-     * After insertion, it performs the necessary rotations and re-coloring
-     * to maintain the Red-Black Tree properties.
+     * Constructs a new node with the specified data.
+     * Color and references are initializes separately.
      *
-     * @param item The data key to be inserted.
+     * @param data The integer value data to store in the node.
      */
-    public void insert(int item) {
-        Node newNode = new Node(item);
+    Node(int data) {
+      this.data = data;
+    }
+  }
 
-        newNode.color = Color.RED;
-        newNode.parent = NIL;
-        newNode.leftChild = NIL;
-        newNode.rightChild = NIL;
+  private Node root;
+  private final Node nullNode;
 
-        Node currentNode = this.root;
-        Node parentNode = NIL;
+  /**
+   * Constructs an empty Red-Black Tree.
+   * Initializes the sentinel NIL node and sets the root to NIL.
+   */
+  public RedBlackTree() {
+    nullNode = new Node(0);
+    nullNode.color = Color.BLACK;
 
-        while (currentNode != NIL) {
-            parentNode = currentNode;
+    nullNode.parent = nullNode;
+    nullNode.leftChild = nullNode;
+    nullNode.rightChild = nullNode;
 
-            if (newNode.data < currentNode.data) {
-                currentNode = currentNode.leftChild;
-            } else {
-                currentNode = currentNode.rightChild;
-            }
+    this.root = nullNode;
+  }
+
+  /**
+   * Inserts a new item into the Red-Black Tree.
+   * After insertion, it performs the necessary rotations and re-coloring
+   * to maintain the Red-Black Tree properties.
+   *
+   * @param item The data key to be inserted.
+   */
+  public void insert(int item) {
+    Node newNode = new Node(item);
+
+    newNode.color = Color.RED;
+    newNode.parent = nullNode;
+    newNode.leftChild = nullNode;
+    newNode.rightChild = nullNode;
+
+    Node currentNode = this.root;
+    Node parentNode = nullNode;
+
+    while (currentNode != nullNode) {
+      parentNode = currentNode;
+
+      if (newNode.data < currentNode.data) {
+        currentNode = currentNode.leftChild;
+      } else {
+        currentNode = currentNode.rightChild;
+      }
+    }
+
+    newNode.parent = parentNode;
+    if (parentNode == nullNode) {
+      this.root = newNode;
+    } else if (newNode.data < parentNode.data) {
+      parentNode.leftChild = newNode;
+    } else {
+      parentNode.rightChild = newNode;
+    }
+
+    insertFixUp(newNode);
+  }
+
+  /*
+   ---------------------Delete Methods------------------------
+   */
+
+  /**
+   * Deletes a given node from the Red Black Tree.
+   *
+   * @param key The data key for the node to delete.
+   *
+   * @throws NoSuchElementException If the given key is not found in the tree.
+   */
+  public void delete(int key) {
+    Node nodeToDelete = findNode(root, key);
+
+    if (nodeToDelete == nullNode) {
+      throw new NoSuchElementException("Key not found: " + key);
+    }
+
+    deleteNode(nodeToDelete);
+  }
+
+  private Node findNode(Node node, int key) {
+    if (node == nullNode) {
+      return nullNode;
+    }
+
+    if (node.data == key) {
+      return node;
+    }
+
+    if (key < node.data) {
+      return findNode(node.leftChild, key);
+    } else {
+      return findNode(node.rightChild, key);
+    }
+  }
+
+  private void deleteNode(Node nodeToBeDeleted) {
+    Node nodeToBeSpliced = nodeToBeDeleted;
+    Node nodeToBeDeletedChild;
+    Color originalColor = nodeToBeSpliced.color;
+
+    if (nodeToBeDeleted.leftChild == nullNode) {
+      nodeToBeDeletedChild = nodeToBeDeleted.rightChild;
+      transplant(nodeToBeDeleted, nodeToBeDeleted.rightChild);
+    } else if (nodeToBeDeleted.rightChild == nullNode) {
+      nodeToBeDeletedChild = nodeToBeDeleted.leftChild;
+      transplant(nodeToBeDeleted, nodeToBeDeleted.leftChild);
+    } else {
+      nodeToBeSpliced = minimum(nodeToBeDeleted.rightChild);
+      originalColor = nodeToBeSpliced.color;
+      nodeToBeDeletedChild = nodeToBeSpliced.rightChild;
+
+      if (nodeToBeSpliced.parent == nodeToBeDeleted) {
+        nodeToBeDeletedChild.parent = nodeToBeSpliced;
+      } else {
+        transplant(nodeToBeSpliced, nodeToBeSpliced.rightChild);
+        nodeToBeSpliced.rightChild = nodeToBeDeleted.rightChild;
+        nodeToBeSpliced.rightChild.parent = nodeToBeSpliced;
+      }
+
+      transplant(nodeToBeDeleted, nodeToBeSpliced);
+      nodeToBeSpliced.leftChild = nodeToBeDeleted.leftChild;
+      nodeToBeSpliced.leftChild.parent = nodeToBeSpliced;
+      nodeToBeSpliced.color = nodeToBeDeleted.color;
+    }
+
+    if (originalColor == Color.BLACK) {
+      deleteFixUp(nodeToBeDeletedChild);
+    }
+  }
+
+  private void deleteFixUp(Node nodeToBeFixed) {
+    while (nodeToBeFixed != root && nodeToBeFixed.color == Color.BLACK) {
+      if (nodeToBeFixed == nodeToBeFixed.parent.leftChild) {
+        Node nodeSibling = nodeToBeFixed.parent.rightChild;
+
+        if (nodeSibling.color == Color.RED) {
+          nodeSibling.color = Color.BLACK;
+          nodeToBeFixed.parent.color = Color.RED;
+
+          leftRotate(nodeToBeFixed.parent);
+
+          nodeSibling = nodeToBeFixed.parent.rightChild;
         }
 
-        newNode.parent = parentNode;
-        if (parentNode == NIL) {
-            this.root = newNode;
-        } else if (newNode.data < parentNode.data) {
-            parentNode.leftChild = newNode;
+        if (nodeSibling.leftChild.color == Color.BLACK
+                && nodeSibling.rightChild.color == Color.BLACK) {
+          nodeSibling.color = Color.RED;
+
+          nodeToBeFixed = nodeToBeFixed.parent;
         } else {
-            parentNode.rightChild = newNode;
+          if (nodeSibling.rightChild.color == Color.BLACK) {
+            nodeSibling.leftChild.color = Color.BLACK;
+            nodeSibling.color = Color.RED;
+
+            rightRotate(nodeSibling);
+
+            nodeSibling = nodeToBeFixed.parent.rightChild;
+          }
+
+          nodeSibling.color = nodeToBeFixed.parent.color;
+
+          nodeToBeFixed.parent.color = Color.BLACK;
+          nodeSibling.rightChild.color = Color.BLACK;
+
+          leftRotate(nodeToBeFixed.parent);
+
+          nodeToBeFixed = root;
+        }
+      } else {
+        Node nodeSibling = nodeToBeFixed.parent.leftChild;
+
+        if (nodeSibling.color == Color.RED) {
+
+          nodeSibling.color = Color.BLACK;
+          nodeToBeFixed.parent.color = Color.RED;
+
+          rightRotate(nodeToBeFixed.parent);
+
+          nodeSibling = nodeToBeFixed.parent.leftChild;
         }
 
-        insertFixUp(newNode);
-    }
+        if (nodeSibling.rightChild.color == Color.BLACK
+                && nodeSibling.leftChild.color == Color.BLACK) {
+          nodeSibling.color = Color.RED;
 
-    /**
-     * Deletes a given node from the Red Black Tree.
-     *
-     * @param key The data key for the node to delete.
-     */
-    public void delete(int key) {
-        // TODO
-    }
-
-    /**
-     * Searches for a specific key within the tree.
-     *
-     * @param key The data key to search for.
-     *
-     * @return true if the key is found, false otherwise.
-     */
-    public boolean search(int key) {
-        return searchHelper(this.root, key);
-    }
-
-    /**
-     * Helper method to recursively search for a key.
-     *
-     * @param node The root of the tree to be searched.
-     * @param key The data key to search for.
-     *
-     * @return true if the key is found, false otherwise.
-     */
-    private boolean searchHelper(Node node, int key) {
-        if (node == NIL) {
-            return false;
-        }
-
-        if (node.data == key) {
-            return true;
-        }
-
-        if (key < node.data ) {
-            return searchHelper(node.leftChild, key);
+          nodeToBeFixed = nodeToBeFixed.parent;
         } else {
-            return searchHelper(node.rightChild, key);
+          if (nodeSibling.leftChild.color == Color.BLACK) {
+            nodeSibling.rightChild.color = Color.BLACK;
+            nodeSibling.color = Color.RED;
+
+            leftRotate(nodeSibling);
+
+            nodeSibling = nodeToBeFixed.parent.leftChild;
+          }
+          nodeSibling.color = nodeToBeFixed.parent.color;
+
+          nodeToBeFixed.parent.color = Color.BLACK;
+          nodeSibling.leftChild.color = Color.BLACK;
+
+          rightRotate(nodeToBeFixed.parent);
+          nodeToBeFixed = root;
+
         }
+      }
     }
 
+    nodeToBeFixed.color = Color.BLACK;
+  }
 
-    /**
-     * Rotate the tree to the left around a given node.
-     *
-     * @param currentNode The node to perform a left rotation around.
-     */
-    private void leftRotate(Node currentNode) {
-        Node currentRightChild = currentNode.rightChild;
-        currentNode.rightChild = currentRightChild.leftChild;
+  private void transplant(Node oldRoot, Node newRoot) {
+    if (oldRoot.parent == nullNode) {
+      this.root = newRoot;
+    } else if (oldRoot == oldRoot.parent.leftChild) {
+      oldRoot.parent.leftChild = newRoot;
+    } else {
+      oldRoot.parent.rightChild = newRoot;
+    }
+    newRoot.parent = oldRoot.parent;
+  }
 
-        if (currentRightChild.leftChild != NIL) {
-            currentRightChild.leftChild.parent = currentNode;
-        }
+  private Node minimum(Node root) {
+    Node current = root;
 
-        currentRightChild.parent = currentNode.parent;
+    while (current.leftChild != nullNode) {
+      current = current.leftChild;
+    }
 
-        if (currentNode.parent == NIL) {
-            root = currentRightChild;
-        } else if (currentNode == currentNode.parent.leftChild) {
-            currentNode.parent.leftChild = currentRightChild;
+    return current;
+  }
+
+  /*
+  * ---------------------Search Methods------------------------
+  */
+
+  /**
+   * Searches for a specific key within the tree.
+   *
+   * @param key The data key to search for.
+   *
+   * @return true if the key is found, false otherwise.
+   */
+  public boolean search(int key) {
+    return searchHelper(this.root, key);
+  }
+
+  /**
+   * Helper method to recursively search for a key.
+   *
+   * @param node The root of the tree to be searched.
+   * @param key The data key to search for.
+   *
+   * @return true if the key is found, false otherwise.
+   */
+  private boolean searchHelper(Node node, int key) {
+    if (node == nullNode) {
+      return false;
+    }
+
+    if (node.data == key) {
+      return true;
+    }
+
+    if (key < node.data) {
+      return searchHelper(node.leftChild, key);
+    } else {
+      return searchHelper(node.rightChild, key);
+    }
+  }
+
+
+  /**
+   * Rotate the tree to the left around a given node.
+   *
+   * @param currentNode The node to perform a left rotation around.
+   */
+  private void leftRotate(Node currentNode) {
+    Node currentRightChild = currentNode.rightChild;
+    currentNode.rightChild = currentRightChild.leftChild;
+
+    if (currentRightChild.leftChild != nullNode) {
+      currentRightChild.leftChild.parent = currentNode;
+    }
+
+    currentRightChild.parent = currentNode.parent;
+
+    if (currentNode.parent == nullNode) {
+      root = currentRightChild;
+    } else if (currentNode == currentNode.parent.leftChild) {
+      currentNode.parent.leftChild = currentRightChild;
+    } else {
+      currentNode.parent.rightChild = currentRightChild;
+    }
+
+    currentRightChild.leftChild = currentNode;
+    currentNode.parent = currentRightChild;
+  }
+
+  /**
+   * Rotate the tree to the right around a given node.
+   *
+   * @param currentNode The node to perform a right rotation around.
+   */
+  private void rightRotate(Node currentNode) {
+    Node currentLeftChild = currentNode.leftChild;
+    currentNode.leftChild = currentLeftChild.rightChild;
+
+    if (currentLeftChild.rightChild != nullNode) {
+      currentLeftChild.rightChild.parent = currentNode;
+    }
+
+    currentLeftChild.parent = currentNode.parent;
+
+    if (currentNode.parent == nullNode) {
+      root = currentLeftChild;
+    } else if (currentNode == currentNode.parent.rightChild) {
+      currentNode.parent.rightChild = currentLeftChild;
+    } else {
+      currentNode.parent.leftChild = currentLeftChild;
+    }
+
+    currentLeftChild.rightChild = currentNode;
+    currentNode.parent = currentLeftChild;
+  }
+
+  /**
+   * Fixes the tree after inserting a new node, including
+   * performing rotations and re-coloring nodes to preserve
+   * the Red-Black properties.
+   *
+   * @param currentNode The newly inserted node.
+   */
+  private void insertFixUp(Node currentNode) {
+    while (currentNode.parent.color == Color.RED) {
+
+      if (currentNode.parent == currentNode.parent.parent.leftChild) {
+        Node uncleRightChild = currentNode.parent.parent.rightChild;
+
+        if (uncleRightChild.color == Color.RED) {
+          currentNode.parent.color = Color.BLACK;
+          uncleRightChild.color = Color.BLACK;
+          currentNode.parent.parent.color = Color.RED;
+          currentNode = currentNode.parent.parent;
         } else {
-            currentNode.parent.rightChild = currentRightChild;
+          if (currentNode == currentNode.parent.rightChild) {
+            currentNode = currentNode.parent;
+            leftRotate(currentNode);
+          }
+
+          currentNode.parent.color = Color.BLACK;
+          currentNode.parent.parent.color = Color.RED;
+          rightRotate(currentNode.parent.parent);
         }
+      } else {
+        Node uncleLeftChild = currentNode.parent.parent.leftChild;
 
-        currentRightChild.leftChild = currentNode;
-        currentNode.parent = currentRightChild;
-    }
-
-    /**
-     * Rotate the tree to the right around a given node.
-     *
-     * @param currentNode The node to perform a right rotation around.
-     */
-    private void rightRotate(Node currentNode) {
-        Node currentLeftChild = currentNode.leftChild;
-        currentNode.leftChild = currentLeftChild.rightChild;
-
-        if (currentLeftChild.rightChild != NIL) {
-            currentLeftChild.rightChild.parent = currentNode;
-        }
-
-        currentLeftChild.parent = currentNode.parent;
-
-        if (currentNode.parent == NIL) {
-            root = currentLeftChild;
-        } else if (currentNode == currentNode.parent.rightChild) {
-            currentNode.parent.rightChild = currentLeftChild;
+        if (uncleLeftChild.color == Color.RED) {
+          currentNode.parent.color = Color.BLACK;
+          uncleLeftChild.color = Color.BLACK;
+          currentNode.parent.parent.color = Color.RED;
+          currentNode = currentNode.parent.parent;
         } else {
-            currentNode.parent.leftChild = currentLeftChild;
-        }
+          if (currentNode == currentNode.parent.leftChild) {
+            currentNode = currentNode.parent;
+            rightRotate(currentNode);
+          }
 
-        currentLeftChild.rightChild = currentNode;
-        currentNode.parent = currentLeftChild;
+          currentNode.parent.color = Color.BLACK;
+          currentNode.parent.parent.color = Color.RED;
+          leftRotate(currentNode.parent.parent);
+        }
+      }
     }
 
-    /**
-     * Fixes the tree after inserting a new node, including
-     * performing rotations and re-coloring nodes to preserve
-     * the Red-Black properties.
-     *
-     * @param currentNode The newly inserted node.
-     */
-    private void insertFixUp(Node currentNode) {
-        while (currentNode.parent.color == Color.RED) {
+    this.root.color = Color.BLACK;
+  }
 
-            if (currentNode.parent == currentNode.parent.parent.leftChild) {
-                Node uncleRightChild = currentNode.parent.parent.rightChild;
+  /*
+   * ---------------------Test Methods------------------------
+   */
 
-                if (uncleRightChild.color == Color.RED) {
-                    currentNode.parent.color = Color.BLACK;
-                    uncleRightChild.color = Color.BLACK;
-                    currentNode.parent.parent.color = Color.RED;
-                    currentNode = currentNode.parent.parent;
-                } else {
-                    if (currentNode == currentNode.parent.rightChild) {
-                        currentNode = currentNode.parent;
-                        leftRotate(currentNode);
-                    }
-
-                    currentNode.parent.color = Color.BLACK;
-                    currentNode.parent.parent.color = Color.RED;
-                    rightRotate(currentNode.parent.parent);
-                }
-            } else {
-                Node uncleLeftChild = currentNode.parent.parent.leftChild;
-
-                if (uncleLeftChild.color == Color.RED) {
-                    currentNode.parent.color = Color.BLACK;
-                    uncleLeftChild.color = Color.BLACK;
-                    currentNode.parent.parent.color = Color.RED;
-                    currentNode = currentNode.parent.parent;
-                } else {
-                    if (currentNode == currentNode.parent.leftChild) {
-                        currentNode = currentNode.parent;
-                        rightRotate(currentNode);
-                    }
-
-                    currentNode.parent.color = Color.BLACK;
-                    currentNode.parent.parent.color = Color.RED;
-                    leftRotate(currentNode.parent.parent);
-                }
-            }
-        }
-
-        this.root.color = Color.BLACK;
+  /**
+   * Gets the data of the root node. For testing purposes.
+   *
+   * @return The data of the root, or -1 if tree is empty.
+   *
+   * @throws IllegalStateException if the tree is empty.
+   */
+  public int getRootData() {
+    if (root == nullNode) {
+      throw new IllegalStateException("Tree is empty");
     }
-    /*
-     * ---------------------Test Methods------------------------
-     */
+    return this.root.data;
+  }
 
-    /**
-     * Gets the data of the root node. For testing purposes.
-     *
-     * @return The data of the root, or -1 if tree is empty.
-     */
-    public int getRootData() {
-        return this.root.data;
+  /**
+   * Checks the tree to see if it is a valid Red-Black tree.
+   *
+   * @return Whether the Red-Black tree is valid.
+   */
+  public boolean isRedBlackTree() {
+    if (root.color != Color.RED) {
+      return false;
     }
 
-    /**
-     * Checks the tree to see if it is a valid Red-Black tree.
-     *
-     * @return Whether the Red-Black tree is valid.
-     */
-    public boolean isRedBlackTree() {
-        boolean result;
-
-        //Check if the root is black, if not it is not a valid Red-Black tree.
-        result = this.root.color == Color.BLACK;
-
-        //Check if there are any red nodes back to back, if not it is not a valid Red-Black tree.
-        int height = validate(this.root);
-        if (height == -1) {
-            result = false;
-        }
-
-        return result;
+    if (!isBinarySearchTree(root, Integer.MIN_VALUE, Integer.MAX_VALUE)) {
+      return false;
     }
 
-    /**
-     * return the black-height of the subtree.
-     *
-     * @return The black-height root, or -1.
-     */
-    private int validate(Node n) {
-        if (n == NIL) {
-            return 1;
-        }
+    return (validate(root) != -1);
+  }
 
-        if (n.color == Color.RED) {
-            if (n.leftChild.color == Color.RED ||  n.rightChild.color == Color.RED) {
-                return -1;
-            }
-        }
-
-        int leftBHeight = validate(n.leftChild);
-        int rightBHeight = validate(n.rightChild);
-
-        if (leftBHeight == -1 || rightBHeight == -1) {
-            return -1;
-        }
-
-        if (leftBHeight != rightBHeight) {
-            return -1;
-        }
-
-        if (n.color == Color.RED) {
-            return leftBHeight;
-        } else {
-            return leftBHeight + 1;
-        }
-
+  private boolean isBinarySearchTree(Node node, int min, int max) {
+    if (node == nullNode) {
+      return true;
     }
+
+    if (node.data <= min || node.data >= max) {
+      return false;
+    }
+
+    return isBinarySearchTree(node.leftChild, min, node.data)
+            && isBinarySearchTree(node.rightChild, node.data, max);
+  }
+
+  /**
+   * return the black-height of the subtree.
+   *
+   * @return The black-height root, or -1.
+   */
+  private int validate(Node n) {
+    if (n == nullNode) {
+      return 1;
+    }
+
+    if (n.color == Color.RED) {
+      if (n.leftChild.color == Color.RED ||  n.rightChild.color == Color.RED) {
+        return -1;
+      }
+    }
+
+    int leftBlackHeight = validate(n.leftChild);
+    int rightBlackHeight = validate(n.rightChild);
+
+    if (leftBlackHeight == -1 || rightBlackHeight == -1) {
+      return -1;
+    }
+
+    if (leftBlackHeight != rightBlackHeight) {
+      return -1;
+    }
+
+    if (n.color == Color.RED) {
+      return leftBlackHeight;
+    } else {
+      return leftBlackHeight + 1;
+    }
+  }
 }
