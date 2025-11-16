@@ -1,14 +1,13 @@
-enum Color {
-    RED,
-    BLACK
-}
-
 /**
  * Implements a Red-Black Tree data structure.
  * This class ensures O(log n) time complexity for insertion, deletion,
  * and search operations by maintaining a balanced binary search tree.
  */
 public class RedBlackTree {
+    private enum Color {
+        RED,
+        BLACK
+    }
 
     //Node Class
     private static class Node {
@@ -50,36 +49,36 @@ public class RedBlackTree {
      * @param item The data key to be inserted.
      */
     public void insert(int item) {
-        Node z = new Node(item);
+        Node newNode = new Node(item);
 
-        z.color = Color.RED;
-        z.parent = NIL;
-        z.leftChild = NIL;
-        z.rightChild = NIL;
+        newNode.color = Color.RED;
+        newNode.parent = NIL;
+        newNode.leftChild = NIL;
+        newNode.rightChild = NIL;
 
-        Node y = this.root;
-        Node x = NIL;
+        Node currentNode = this.root;
+        Node parentNode = NIL;
 
-        while (y != NIL) {
-            x = y;
+        while (currentNode != NIL) {
+            parentNode = currentNode;
 
-            if (z.data < y.data) {
-                y = y.leftChild;
+            if (newNode.data < currentNode.data) {
+                currentNode = currentNode.leftChild;
             } else {
-                y = y.rightChild;
+                currentNode = currentNode.rightChild;
             }
         }
 
-        z.parent = x;
-        if (x == NIL) {
-            this.root = z;
-        } else if (z.data < x.data) {
-            x.leftChild = z;
+        newNode.parent = parentNode;
+        if (parentNode == NIL) {
+            this.root = newNode;
+        } else if (newNode.data < parentNode.data) {
+            parentNode.leftChild = newNode;
         } else {
-            x.rightChild = z;
+            parentNode.rightChild = newNode;
         }
 
-        insertFixUp(z);
+        insertFixUp(newNode);
     }
 
     /**
@@ -88,7 +87,7 @@ public class RedBlackTree {
      * @param key The data key for the node to delete.
      */
     public void delete(int key) {
-
+        // TODO
     }
 
     /**
@@ -130,55 +129,55 @@ public class RedBlackTree {
     /**
      * Rotate the tree to the left around a given node.
      *
-     * @param x The node to perform a left rotation around.
+     * @param currentNode The node to perform a left rotation around.
      */
-    private void leftRotate(Node x) {
-        Node y = x.rightChild;
-        x.rightChild = y.leftChild;
+    private void leftRotate(Node currentNode) {
+        Node currentRightChild = currentNode.rightChild;
+        currentNode.rightChild = currentRightChild.leftChild;
 
-        if (y.leftChild != NIL) {
-            y.leftChild.parent = x;
+        if (currentRightChild.leftChild != NIL) {
+            currentRightChild.leftChild.parent = currentNode;
         }
 
-        y.parent = x.parent;
+        currentRightChild.parent = currentNode.parent;
 
-        if (x.parent == NIL) {
-            root = y;
-        } else if (x == x.parent.leftChild) {
-            x.parent.leftChild = y;
+        if (currentNode.parent == NIL) {
+            root = currentRightChild;
+        } else if (currentNode == currentNode.parent.leftChild) {
+            currentNode.parent.leftChild = currentRightChild;
         } else {
-            x.parent.rightChild = y;
+            currentNode.parent.rightChild = currentRightChild;
         }
 
-        y.leftChild = x;
-        x.parent = y;
+        currentRightChild.leftChild = currentNode;
+        currentNode.parent = currentRightChild;
     }
 
     /**
      * Rotate the tree to the right around a given node.
      *
-     * @param x The node to perform a right rotation around.
+     * @param currentNode The node to perform a right rotation around.
      */
-    private void rightRotate(Node x) {
-        Node y = x.leftChild;
-        x.leftChild = y.rightChild;
+    private void rightRotate(Node currentNode) {
+        Node currentLeftChild = currentNode.leftChild;
+        currentNode.leftChild = currentLeftChild.rightChild;
 
-        if (y.rightChild != NIL) {
-            y.rightChild.parent = x;
+        if (currentLeftChild.rightChild != NIL) {
+            currentLeftChild.rightChild.parent = currentNode;
         }
 
-        y.parent = x.parent;
+        currentLeftChild.parent = currentNode.parent;
 
-        if (x.parent == NIL) {
-            root = y;
-        } else if (x == x.parent.rightChild) {
-            x.parent.rightChild = y;
+        if (currentNode.parent == NIL) {
+            root = currentLeftChild;
+        } else if (currentNode == currentNode.parent.rightChild) {
+            currentNode.parent.rightChild = currentLeftChild;
         } else {
-            x.parent.leftChild = y;
+            currentNode.parent.leftChild = currentLeftChild;
         }
 
-        y.rightChild = x;
-        x.parent = y;
+        currentLeftChild.rightChild = currentNode;
+        currentNode.parent = currentLeftChild;
     }
 
     /**
@@ -186,46 +185,46 @@ public class RedBlackTree {
      * performing rotations and re-coloring nodes to preserve
      * the Red-Black properties.
      *
-     * @param z The newly inserted node.
+     * @param currentNode The newly inserted node.
      */
-    private void insertFixUp(Node z) {
-        while (z.parent.color == Color.RED) {
+    private void insertFixUp(Node currentNode) {
+        while (currentNode.parent.color == Color.RED) {
 
-            if (z.parent == z.parent.parent.leftChild) {
-                Node y = z.parent.parent.rightChild;
+            if (currentNode.parent == currentNode.parent.parent.leftChild) {
+                Node uncleRightChild = currentNode.parent.parent.rightChild;
 
-                if (y.color == Color.RED) {
-                    z.parent.color = Color.BLACK;
-                    y.color = Color.BLACK;
-                    z.parent.parent.color = Color.RED;
-                    z = z.parent.parent;
+                if (uncleRightChild.color == Color.RED) {
+                    currentNode.parent.color = Color.BLACK;
+                    uncleRightChild.color = Color.BLACK;
+                    currentNode.parent.parent.color = Color.RED;
+                    currentNode = currentNode.parent.parent;
                 } else {
-                    if (z == z.parent.rightChild) {
-                        z = z.parent;
-                        leftRotate(z);
+                    if (currentNode == currentNode.parent.rightChild) {
+                        currentNode = currentNode.parent;
+                        leftRotate(currentNode);
                     }
 
-                    z.parent.color = Color.BLACK;
-                    z.parent.parent.color = Color.RED;
-                    rightRotate(z.parent.parent);
+                    currentNode.parent.color = Color.BLACK;
+                    currentNode.parent.parent.color = Color.RED;
+                    rightRotate(currentNode.parent.parent);
                 }
             } else {
-                Node y = z.parent.parent.leftChild;
+                Node uncleLeftChild = currentNode.parent.parent.leftChild;
 
-                if (y.color == Color.RED) {
-                    z.parent.color = Color.BLACK;
-                    y.color = Color.BLACK;
-                    z.parent.parent.color = Color.RED;
-                    z = z.parent.parent;
+                if (uncleLeftChild.color == Color.RED) {
+                    currentNode.parent.color = Color.BLACK;
+                    uncleLeftChild.color = Color.BLACK;
+                    currentNode.parent.parent.color = Color.RED;
+                    currentNode = currentNode.parent.parent;
                 } else {
-                    if (z == z.parent.leftChild) {
-                        z = z.parent;
-                        rightRotate(z);
+                    if (currentNode == currentNode.parent.leftChild) {
+                        currentNode = currentNode.parent;
+                        rightRotate(currentNode);
                     }
 
-                    z.parent.color = Color.BLACK;
-                    z.parent.parent.color = Color.RED;
-                    leftRotate(z.parent.parent);
+                    currentNode.parent.color = Color.BLACK;
+                    currentNode.parent.parent.color = Color.RED;
+                    leftRotate(currentNode.parent.parent);
                 }
             }
         }
@@ -251,12 +250,10 @@ public class RedBlackTree {
      * @return Whether the Red-Black tree is valid.
      */
     public boolean isRedBlackTree() {
-        boolean result = true;
+        boolean result;
 
         //Check if the root is black, if not it is not a valid Red-Black tree.
-        if (this.root.color != Color.BLACK) {
-            result = false;
-        }
+        result = this.root.color == Color.BLACK;
 
         //Check if there are any red nodes back to back, if not it is not a valid Red-Black tree.
         int height = validate(this.root);
