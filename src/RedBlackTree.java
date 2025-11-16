@@ -1,10 +1,14 @@
+enum Color {
+    RED,
+    BLACK
+}
 
 public class RedBlackTree {
 
     //Node Class
-    private class Node {
+    private static class Node {
         int data;
-        String color;
+        Color color;
         Node parent;
         Node leftChild;
         Node rightChild;
@@ -12,11 +16,6 @@ public class RedBlackTree {
         //Constructor
         Node(int data) {
             this.data = data;
-            this.color = "RED";
-
-            this.leftChild = null;
-            this.rightChild = null;
-            this.parent = null;
         }
     }
 
@@ -26,7 +25,7 @@ public class RedBlackTree {
     //Constructor
     public RedBlackTree() {
         NIL = new Node(0);
-        NIL.color = "BLACK";
+        NIL.color = Color.BLACK;
 
         NIL.parent = NIL;
         NIL.leftChild = NIL;
@@ -36,7 +35,36 @@ public class RedBlackTree {
     }
 
     public void insert(int item) {
+        Node z = new Node(item);
 
+        z.color = Color.RED;
+        z.parent = NIL;
+        z.leftChild = NIL;
+        z.rightChild = NIL;
+
+        Node x = this.root;
+        Node y = NIL;
+
+        while (y != NIL) {
+            x = y;
+
+            if (z.data < y.data) {
+                y = y.leftChild;
+            } else {
+                y = y.rightChild;
+            }
+        }
+
+        z.parent = x;
+        if (x == NIL) {
+            this.root = z;
+        } else if (z.data < x.data) {
+            x.leftChild = z;
+        } else {
+            x.rightChild = z;
+        }
+
+        insertFixUp(z);
     }
 
     public void delete(int key) {
