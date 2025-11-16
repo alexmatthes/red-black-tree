@@ -119,7 +119,7 @@ public class RedBlackTree {
             return true;
         }
 
-        if (node.data < key) {
+        if (key < node.data ) {
             return searchHelper(node.leftChild, key);
         } else {
             return searchHelper(node.rightChild, key);
@@ -232,6 +232,9 @@ public class RedBlackTree {
 
         this.root.color = Color.BLACK;
     }
+    /*
+     * ---------------------Test Methods------------------------
+     */
 
     /**
      * Gets the data of the root node. For testing purposes.
