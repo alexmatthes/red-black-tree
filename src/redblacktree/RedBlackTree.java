@@ -473,7 +473,7 @@ public class RedBlackTree {
       return false;
     }
 
-    if (!isBinarySearchTree(root, Integer.MIN_VALUE, Integer.MAX_VALUE)) {
+    if (!isBinarySearchTree(root, null, null)) {
       return false;
     }
 
@@ -481,16 +481,26 @@ public class RedBlackTree {
   }
 
   /**
-   * Checks the tree to see if it is a valid binary search tree.
+   * Checks if the tree maintains the Binary Search Tree property.
+   * Uses nullable Integer bounds to handle edge cases properly.
    *
-   * @return Whether the tree is a valid binary search tree.
+   * @param node The current node being validated
+   * @param min The minimum allowed value (null means no minimum)
+   * @param max The maximum allowed value (null means no maximum)
+   * @return true if BST property is maintained, false otherwise
    */
-  private boolean isBinarySearchTree(Node node, int min, int max) {
+  private boolean isBinarySearchTree(Node node, Integer min, Integer max) {
     if (node == nullNode) {
       return true;
     }
 
-    if (node.data <= min || node.data >= max) {
+    // Check minimum bound (if it exists)
+    if (min != null && node.data <= min) {
+      return false;
+    }
+
+    // Check maximum bound (if it exists)
+    if (max != null && node.data >= max) {
       return false;
     }
 
