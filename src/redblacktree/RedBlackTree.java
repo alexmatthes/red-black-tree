@@ -18,7 +18,7 @@ public class RedBlackTree {
    *  Represents a node in the Red-Black Tree.
    *  Each node contains data, color, and references to parent and children.
    */
-  private static class Node {
+  static class Node {
     int data;
     Color color;
     Node parent;
@@ -540,5 +540,59 @@ public class RedBlackTree {
     } else {
       return leftBlackHeight + 1;
     }
+  }
+
+  /**
+   * Returns the root node of the tree.
+   * @return The root node.
+   */
+  public Node getRoot() {
+    return this.root;
+  }
+
+  /**
+   * Returns the sentinel null node.
+   * @return The nullNode.
+   */
+  public Node getNullNode() {
+    return this.nullNode;
+  }
+
+  /**
+   * Public helper to check if a node is RED.
+   * This keeps the Color enum private.
+   *
+   * @param node The node to check.
+   * @return true if the node's color is RED, false otherwise.
+   */
+  public boolean isNodeRed(Node node) {
+    return node.color == Color.RED;
+  }
+
+  /**
+   * Public helper to get a node's data.
+   * @param node The node to query.
+   * @return The data of the node.
+   */
+  public int getNodeData(Node node) {
+    return node.data;
+  }
+
+  /**
+   * Public helper to get a node's left child.
+   * @param node The node to query.
+   * @return The left child of the node.
+   */
+  public Node getLeftChild(Node node) {
+    return node.leftChild;
+  }
+
+  /**
+   * Public helper to get a node's right child.
+   * @param node The node to query.
+   * @return The right child of the node.
+   */
+  public Node getRightChild(Node node) {
+    return node.rightChild;
   }
 }
