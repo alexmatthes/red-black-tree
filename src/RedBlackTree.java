@@ -94,12 +94,23 @@ public class RedBlackTree {
     /**
      * Searches for a specific key within the tree.
      *
+     * @param root The root of the tree to be searched.
      * @param key The data key to search for.
+     *
      * @return true if the key is found, false otherwise.
      */
-    public boolean search(int key) {
-        //Ignore this, this is only so the IDE does not yell at me.
-        return false;
+    public boolean search(Node root, int key) {
+        boolean isFound = false;
+
+        if (root.data == key) {
+            isFound = true;
+        } else if (root.data < key) {
+            isFound = search(root.leftChild, key);
+        } else {
+            isFound = search(root.rightChild, key);
+        }
+
+        return isFound;
     }
 
     /**
