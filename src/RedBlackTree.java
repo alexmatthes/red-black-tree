@@ -232,4 +232,70 @@ public class RedBlackTree {
 
         this.root.color = Color.BLACK;
     }
+
+    /**
+     * Gets the data of the root node. For testing purposes.
+     *
+     * @return The data of the root, or -1 if tree is empty.
+     */
+    public int getRootData() {
+        return this.root.data;
+    }
+
+    /**
+     * Checks the tree to see if it is a valid Red-Black tree.
+     *
+     * @return Whether the Red-Black tree is valid.
+     */
+    public boolean isRedBlackTree() {
+        boolean result = true;
+
+        //Check if the root is black, if not it is not a valid Red-Black tree.
+        if (this.root.color != Color.BLACK) {
+            result = false;
+        }
+
+        //Check if there are any red nodes back to back, if not it is not a valid Red-Black tree.
+        int height = validate(this.root);
+        if (height == -1) {
+            result = false;
+        }
+
+        return result;
+    }
+
+    /**
+     * return the black-height of the subtree.
+     *
+     * @return The black-height root, or -1.
+     */
+    private int validate(Node n) {
+        if (n == NIL) {
+            return 1;
+        }
+
+        if (n.color == Color.RED) {
+            if (n.leftChild.color == Color.RED ||  n.rightChild.color == Color.RED) {
+                return -1;
+            }
+        }
+
+        int leftBHeight = validate(n.leftChild);
+        int rightBHeight = validate(n.rightChild);
+
+        if (leftBHeight == -1 || rightBHeight == -1) {
+            return -1;
+        }
+
+        if (leftBHeight != rightBHeight) {
+            return -1;
+        }
+
+        if (n.color == Color.RED) {
+            return leftBHeight;
+        } else {
+            return leftBHeight + 1;
+        }
+
+    }
 }
