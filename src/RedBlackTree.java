@@ -98,6 +98,7 @@ public class RedBlackTree {
      * @return true if the key is found, false otherwise.
      */
     public boolean search(int key) {
+        //Ignore this, this is only so the IDE does not yell at me.
         return false;
     }
 
@@ -107,16 +108,52 @@ public class RedBlackTree {
      * @param x The node to perform a left rotation around.
      */
     private void leftRotate(Node x) {
+        Node y = x.rightChild;
+        x.rightChild = y.leftChild;
 
+        if (y.leftChild != NIL) {
+            y.leftChild.parent = x;
+        }
+
+        y.parent = x.parent;
+
+        if (x.parent == NIL) {
+            root = y;
+        } else if (x == x.parent.leftChild) {
+            x.parent.leftChild = y;
+        } else {
+            x.parent.rightChild = y;
+        }
+
+        y.leftChild = x;
+        x.parent = y;
     }
 
     /**
      * Rotate the tree to the right around a given node.
      *
-     * @param y The node to perform a right rotation around.
+     * @param x The node to perform a right rotation around.
      */
-    private void rightRotate(Node y) {
+    private void rightRotate(Node x) {
+        Node y = x.leftChild;
+        x.leftChild = y.rightChild;
 
+        if (y.rightChild != NIL) {
+            y.rightChild.parent = x;
+        }
+
+        y.parent = x.parent;
+
+        if (x.parent == NIL) {
+            root = y;
+        } else if (x == x.parent.rightChild) {
+            x.parent.rightChild = y;
+        } else {
+            x.parent.leftChild = y;
+        }
+
+        y.rightChild = x;
+        x.parent = y;
     }
 
     /**
