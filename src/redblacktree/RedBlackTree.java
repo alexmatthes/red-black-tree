@@ -18,7 +18,7 @@ public class RedBlackTree {
    *  Represents a node in the Red-Black Tree.
    *  Each node contains data, color, and references to parent and children.
    */
-  static class Node {
+  public static class Node {
     int data;
     Color color;
     Node parent;
@@ -544,6 +544,7 @@ public class RedBlackTree {
 
   /**
    * Returns the root node of the tree.
+   *
    * @return The root node.
    */
   public Node getRoot() {
@@ -552,6 +553,7 @@ public class RedBlackTree {
 
   /**
    * Returns the sentinel null node.
+   *
    * @return The nullNode.
    */
   public Node getNullNode() {
@@ -571,7 +573,9 @@ public class RedBlackTree {
 
   /**
    * Public helper to get a node's data.
+   *
    * @param node The node to query.
+   *
    * @return The data of the node.
    */
   public int getNodeData(Node node) {
@@ -580,7 +584,9 @@ public class RedBlackTree {
 
   /**
    * Public helper to get a node's left child.
+   *
    * @param node The node to query.
+   *
    * @return The left child of the node.
    */
   public Node getLeftChild(Node node) {
@@ -589,7 +595,9 @@ public class RedBlackTree {
 
   /**
    * Public helper to get a node's right child.
+   *
    * @param node The node to query.
+   *
    * @return The right child of the node.
    */
   public Node getRightChild(Node node) {
