@@ -1,5 +1,6 @@
 package redblacktree;
 
+import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Font;
 import java.awt.Graphics;
@@ -8,8 +9,13 @@ import java.awt.Point;
 import java.awt.RenderingHints;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.NoSuchElementException;
+import javax.swing.JButton;
 import javax.swing.JFrame;
+import javax.swing.JLabel;
+import javax.swing.JOptionPane;
 import javax.swing.JPanel;
+import javax.swing.JTextField;
 
 /**
  * Visualize the Red-Black Tree.
@@ -28,12 +34,68 @@ public class Visualization {
   public Visualization(RedBlackTree tree) {
     this.tree = tree;
 
+    // Setup the main window.
     JFrame frame = new JFrame("Red-Black Tree Visualizer");
     frame.setSize(800, 600);
     frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 
+    // Arrange the panels with BorderLayout.
+    frame.setLayout(new BorderLayout());
+
+    // Create the drawing canvas.
     canvas = new DrawingPanel();
-    frame.add(canvas);
+
+    // Add the canvas to the center of the window.
+    frame.add(canvas, BorderLayout.CENTER);
+
+    // Create the interactive control panel
+    JPanel controlPanel = new JPanel();
+    JLabel label = new JLabel("Value:");
+    JTextField numberField = new JTextField(10); // 10 chars wide
+    JButton insertButton = new JButton("Insert");
+    JButton deleteButton = new JButton("Delete");
+
+    // Add components to the control panel
+    controlPanel.add(label);
+    controlPanel.add(numberField);
+    controlPanel.add(insertButton);
+    controlPanel.add(deleteButton);
+
+    // Add the control panel to the bottom of the window
+    frame.add(controlPanel, BorderLayout.SOUTH);
+
+    // Insert Button Logic
+    insertButton.addActionListener(e -> {
+      try {
+        String text = numberField.getText();
+        int value = Integer.parseInt(text);
+        tree.insert(value);
+        canvas.repaint(); // Redraw the tree
+        numberField.setText(""); // Clear the text field
+      } catch (NumberFormatException ex) {
+        JOptionPane.showMessageDialog(frame, "Please enter a valid integer.",
+                "Input Error", JOptionPane.ERROR_MESSAGE);
+      }
+    });
+
+    // Delete Button Logic
+    deleteButton.addActionListener(e -> {
+      try {
+        String text = numberField.getText();
+        int value = Integer.parseInt(text);
+        tree.delete(value);
+        canvas.repaint(); // Redraw the tree
+        numberField.setText(""); // Clear the text field
+      } catch (NumberFormatException ex) {
+        JOptionPane.showMessageDialog(frame, "Please enter a valid integer.",
+                "Input Error", JOptionPane.ERROR_MESSAGE);
+      } catch (NoSuchElementException ex) {
+        JOptionPane.showMessageDialog(frame, ex.getMessage(),
+                "Delete Error", JOptionPane.ERROR_MESSAGE);
+      }
+    });
+
+    // Make the window visible (must be last)
     frame.setVisible(true);
   }
 

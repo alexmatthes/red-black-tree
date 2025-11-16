@@ -1,20 +1,15 @@
 package redblacktree;
 
 /**
- * Main Program.
+ * Main Program to launch the Red-Black Tree Visualization Application.
  * Author: Alex Matthes
  */
 public class Main {
-  static void main(String[] args) throws InterruptedException {
+  static void main() {
+    // Create a single instance of a Red-Black Tree
     RedBlackTree tree = new RedBlackTree();
-    Visualization viz = new Visualization(tree);
 
-    int[] values = {10, 5, 15, 2, 7, 20, 12};
-
-    for (int v : values) {
-      tree.insert(v);
-      viz.repaint(); // Tell the visualizer to redraw
-      Thread.sleep(1000); // Pause for 1 second to watch it
-    }
+    // Create a single instance of the visualization, passing in the tree.
+    new Visualization(tree);
   }
 }
