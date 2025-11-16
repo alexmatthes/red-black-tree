@@ -94,24 +94,38 @@ public class RedBlackTree {
     /**
      * Searches for a specific key within the tree.
      *
-     * @param root The root of the tree to be searched.
      * @param key The data key to search for.
      *
      * @return true if the key is found, false otherwise.
      */
-    public boolean search(Node root, int key) {
-        boolean isFound = false;
+    public boolean search(int key) {
+        return searchHelper(this.root, key);
+    }
 
-        if (root.data == key) {
-            isFound = true;
-        } else if (root.data < key) {
-            isFound = search(root.leftChild, key);
-        } else {
-            isFound = search(root.rightChild, key);
+    /**
+     * Helper method to recursively search for a key.
+     *
+     * @param node The root of the tree to be searched.
+     * @param key The data key to search for.
+     *
+     * @return true if the key is found, false otherwise.
+     */
+    private boolean searchHelper(Node node, int key) {
+        if (node == NIL) {
+            return false;
         }
 
-        return isFound;
+        if (node.data == key) {
+            return true;
+        }
+
+        if (node.data < key) {
+            return searchHelper(node.leftChild, key);
+        } else {
+            return searchHelper(node.rightChild, key);
+        }
     }
+
 
     /**
      * Rotate the tree to the left around a given node.
@@ -176,6 +190,7 @@ public class RedBlackTree {
      */
     private void insertFixUp(Node z) {
         while (z.parent.color == Color.RED) {
+
             if (z.parent == z.parent.parent.leftChild) {
                 Node y = z.parent.parent.rightChild;
 
@@ -183,15 +198,16 @@ public class RedBlackTree {
                     z.parent.color = Color.BLACK;
                     y.color = Color.BLACK;
                     z.parent.parent.color = Color.RED;
-
                     z = z.parent.parent;
                 } else {
                     if (z == z.parent.rightChild) {
-                        leftRotate(z.parent.parent.rightChild);
+                        z = z.parent;
+                        leftRotate(z);
                     }
-                    if (z == z.parent.parent.leftChild) {
-                        rightRotate(z.parent.parent.leftChild);
-                    }
+
+                    z.parent.color = Color.BLACK;
+                    z.parent.parent.color = Color.RED;
+                    rightRotate(z.parent.parent);
                 }
             } else {
                 Node y = z.parent.parent.leftChild;
@@ -200,17 +216,20 @@ public class RedBlackTree {
                     z.parent.color = Color.BLACK;
                     y.color = Color.BLACK;
                     z.parent.parent.color = Color.RED;
-
                     z = z.parent.parent;
                 } else {
-                    if (z == z.parent.rightChild) {
-                        leftRotate(z.parent.parent.rightChild);
+                    if (z == z.parent.leftChild) {
+                        z = z.parent;
+                        rightRotate(z);
                     }
-                    if (z == z.parent.parent.leftChild) {
-                        rightRotate(z.parent.parent.leftChild);
-                    }
+
+                    z.parent.color = Color.BLACK;
+                    z.parent.parent.color = Color.RED;
+                    leftRotate(z.parent.parent);
                 }
             }
         }
+
+        this.root.color = Color.BLACK;
     }
 }
