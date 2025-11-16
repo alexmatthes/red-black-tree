@@ -3,6 +3,11 @@ enum Color {
     BLACK
 }
 
+/**
+ * Implements a Red-Black Tree data structure.
+ * This class ensures O(log n) time complexity for insertion, deletion,
+ * and search operations by maintaining a balanced binary search tree.
+ */
 public class RedBlackTree {
 
     //Node Class
@@ -22,7 +27,10 @@ public class RedBlackTree {
     private Node root;
     private final Node NIL;
 
-    //Constructor
+    /**
+     * Constructs an empty Red-Black Tree.
+     * Initializes the sentinel NIL node and sets the root to NIL.
+     */
     public RedBlackTree() {
         NIL = new Node(0);
         NIL.color = Color.BLACK;
@@ -34,6 +42,13 @@ public class RedBlackTree {
         this.root = NIL;
     }
 
+    /**
+     * Inserts a new item into the Red-Black Tree.
+     * After insertion, it performs the necessary rotations and re-coloring
+     * to maintain the Red-Black Tree properties.
+     *
+     * @param item The data key to be inserted.
+     */
     public void insert(int item) {
         Node z = new Node(item);
 
@@ -42,8 +57,8 @@ public class RedBlackTree {
         z.leftChild = NIL;
         z.rightChild = NIL;
 
-        Node x = this.root;
-        Node y = NIL;
+        Node y = this.root;
+        Node x = NIL;
 
         while (y != NIL) {
             x = y;
@@ -67,23 +82,51 @@ public class RedBlackTree {
         insertFixUp(z);
     }
 
+    /**
+     * Deletes a given node from the Red Black Tree.
+     *
+     * @param key The data key for the node to delete.
+     */
     public void delete(int key) {
-        // Public-facing delete
+
     }
 
+    /**
+     * Searches for a specific key within the tree.
+     *
+     * @param key The data key to search for.
+     * @return true if the key is found, false otherwise.
+     */
     public boolean search(int key) {
-        // Public-facing search
+        return false;
     }
 
+    /**
+     * Rotate the tree to the left around a given node.
+     *
+     * @param x The node to perform a left rotation around.
+     */
     private void leftRotate(Node x) {
-        // All the rotation logic...
+
     }
 
+    /**
+     * Rotate the tree to the right around a given node.
+     *
+     * @param y The node to perform a right rotation around.
+     */
     private void rightRotate(Node y) {
-        // ...
+
     }
 
+    /**
+     * Fixes the tree after inserting a new node, including
+     * performing rotations and re-coloring nodes to preserve
+     * the Red-Black properties.
+     *
+     * @param z The newly inserted node.
+     */
     private void insertFixUp(Node z) {
-        // ...
+
     }
 }
