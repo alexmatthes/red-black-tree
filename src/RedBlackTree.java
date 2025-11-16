@@ -175,6 +175,42 @@ public class RedBlackTree {
      * @param z The newly inserted node.
      */
     private void insertFixUp(Node z) {
+        while (z.parent.color == Color.RED) {
+            if (z.parent == z.parent.parent.leftChild) {
+                Node y = z.parent.parent.rightChild;
 
+                if (y.color == Color.RED) {
+                    z.parent.color = Color.BLACK;
+                    y.color = Color.BLACK;
+                    z.parent.parent.color = Color.RED;
+
+                    z = z.parent.parent;
+                } else {
+                    if (z == z.parent.rightChild) {
+                        leftRotate(z.parent.parent.rightChild);
+                    }
+                    if (z == z.parent.parent.leftChild) {
+                        rightRotate(z.parent.parent.leftChild);
+                    }
+                }
+            } else {
+                Node y = z.parent.parent.leftChild;
+
+                if (y.color == Color.RED) {
+                    z.parent.color = Color.BLACK;
+                    y.color = Color.BLACK;
+                    z.parent.parent.color = Color.RED;
+
+                    z = z.parent.parent;
+                } else {
+                    if (z == z.parent.rightChild) {
+                        leftRotate(z.parent.parent.rightChild);
+                    }
+                    if (z == z.parent.parent.leftChild) {
+                        rightRotate(z.parent.parent.leftChild);
+                    }
+                }
+            }
+        }
     }
 }
