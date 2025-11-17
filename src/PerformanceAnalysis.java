@@ -28,12 +28,15 @@ public class PerformanceAnalysis {
         // Create shuffled data
         // To shuffle, we must use a List, then convert back to an array
         List<Integer> list = new ArrayList<>();
+
         for (int i = 0; i < N; i++) {
             list.add(i);
         }
+
         Collections.shuffle(list);
 
         int[] shuffledData = new int[N];
+
         for (int i = 0; i < N; i++) {
             shuffledData[i] = list.get(i);
         }
@@ -44,44 +47,63 @@ public class PerformanceAnalysis {
 
         // Scenario 1: RedBlackTree (Random Data)
         RedBlackTree rbtRandom = new RedBlackTree();
+
         long startTime = System.nanoTime();
+
         for (int item : shuffledData) {
             rbtRandom.insert(item);
         }
+
         long endTime = System.nanoTime();
+
         long rbtRandomTime = (endTime - startTime) / 1_000_000; // ms
+
         System.out.println("RedBlackTree (Random Data): " + rbtRandomTime + " ms");
 
         // Scenario 2: BinarySearchTree (Random Data)
         BinarySearchTree bstRandom = new BinarySearchTree();
+
         startTime = System.nanoTime();
+
         for (int item : shuffledData) {
             bstRandom.insert(item);
         }
+
         endTime = System.nanoTime();
+
         long bstRandomTime = (endTime - startTime) / 1_000_000; // ms
+
         System.out.println("BinarySearchTree (Random):  " + bstRandomTime + " ms");
 
         System.out.println("---");
 
         // Scenario 3: RedBlackTree (Sorted Data)
         RedBlackTree rbtSorted = new RedBlackTree();
+
         startTime = System.nanoTime();
+
         for (int item : sortedData) {
             rbtSorted.insert(item);
         }
+
         endTime = System.nanoTime();
+
         long rbtSortedTime = (endTime - startTime) / 1_000_000; // ms
+
         System.out.println("RedBlackTree (Sorted Data): " + rbtSortedTime + " ms");
 
         // Scenario 4: BinarySearchTree (Sorted Data)
         BinarySearchTree bstSorted = new BinarySearchTree();
+
         startTime = System.nanoTime();
+
         for (int item : sortedData) {
             bstSorted.insert(item);
         }
         endTime = System.nanoTime();
+
         long bstSortedTime = (endTime - startTime) / 1_000_000; // ms
+
         System.out.println("BinarySearchTree (Sorted):  " + bstSortedTime + " ms");
     }
 }
