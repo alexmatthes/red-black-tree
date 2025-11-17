@@ -34,7 +34,7 @@ public class Visualization {
   public Visualization(RedBlackTree tree) {
     this.tree = tree;
 
-    // Setup the main window.
+    // Set up the main window.
     JFrame frame = new JFrame("Red-Black Tree Visualizer");
     frame.setSize(800, 600);
     frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);

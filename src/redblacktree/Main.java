@@ -5,7 +5,7 @@ package redblacktree;
  * Author: Alex Matthes
  */
 public class Main {
-  static void main() {
+  public static void main(String[] args) {
     // Create a single instance of a Red-Black Tree
     RedBlackTree tree = new RedBlackTree();
 
